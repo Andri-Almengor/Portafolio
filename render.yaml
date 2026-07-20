@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: andrick-portfolio
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm --workspace server start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22
+      - key: FRONTEND_ORIGINS
+        sync: false
+      - key: PUBLIC_API_URL
+        sync: false
+      - key: GOOGLE_SPREADSHEET_ID
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON_BASE64
+        sync: false
+      - key: GOOGLE_DRIVE_FOLDER_ID
+        sync: false
+      - key: APPS_SCRIPT_CONTACT_URL
+        sync: false
+      - key: CONTACT_HMAC_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: IP_HASH_SALT
+        generateValue: true
+      - key: WHATSAPP_NUMBER
+        value: "50671390044"
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
+      - key: VITE_TURNSTILE_SITE_KEY
+        sync: false
