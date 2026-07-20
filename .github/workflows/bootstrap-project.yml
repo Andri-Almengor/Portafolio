@@ -1,0 +1,40 @@
+name: Bootstrap project
+
+on:
+  push:
+    branches:
+      - feature/base-funcional-segura
+    paths:
+      - "bootstrap/**"
+      - ".github/workflows/bootstrap-project.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/base-funcional-segura
+          fetch-depth: 0
+
+      - name: Restore project files
+        shell: bash
+        run: |
+          cat bootstrap/chunk-* > /tmp/portfolio.tar.gz.b64
+          base64 --decode /tmp/portfolio.tar.gz.b64 > /tmp/portfolio.tar.gz
+          tar -xzf /tmp/portfolio.tar.gz -C .
+          rm -rf bootstrap
+          rm -f .github/workflows/bootstrap-project.yml
+
+      - name: Commit functional foundation
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: add secure functional portfolio foundation"
+          git push origin HEAD:feature/base-funcional-segura
