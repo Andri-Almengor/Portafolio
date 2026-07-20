@@ -5,7 +5,6 @@ function generateSecret(bytes = 48) {
 }
 
 const values = {
-  CONTACT_HMAC_SECRET: generateSecret(),
   JWT_ACCESS_SECRET: generateSecret(),
   JWT_REFRESH_SECRET: generateSecret(),
   IP_HASH_SALT: generateSecret(),
@@ -13,7 +12,8 @@ const values = {
 };
 
 console.log('# Copie estos valores en server/.env o en las variables de Render.');
-console.log('# No los suba a GitHub ni los comparta públicamente.');
+console.log('# CONTACT_HMAC_SECRET se obtiene al ejecutar setupPortfolioInfrastructure() en Apps Script.');
+console.log('# No suba estos valores a GitHub ni los comparta públicamente.');
 console.log('');
 
 for (const [key, value] of Object.entries(values)) {
