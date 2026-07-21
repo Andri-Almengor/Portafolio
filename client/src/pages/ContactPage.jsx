@@ -9,6 +9,7 @@ const initialForm = { name: '', email: '', phone: '', subject: '', message: '', 
 export function ContactPage() {
   const [form, setForm] = useState(initialForm);
   const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const [notice, setNotice] = useState({ message: '', tone: 'success' });
   const [sending, setSending] = useState(false);
   const [accepted, setAccepted] = useState(false);
@@ -32,7 +33,13 @@ export function ContactPage() {
       if (data.whatsappUrl) window.location.assign(data.whatsappUrl);
     } catch (error) {
       setNotice({ message: error.message, tone: 'error' });
-    } finally { setSending(false); }
+    } finally {
+      // Los tokens de Turnstile son de un solo uso, incluso cuando el proveedor
+      // posterior (Sheets, Apps Script o WhatsApp) falla. Generar uno nuevo permite reintentar.
+      setTurnstileToken('');
+      setTurnstileReset((current) => current + 1);
+      setSending(false);
+    }
   }
 
   return (
@@ -53,7 +60,7 @@ export function ContactPage() {
               <fieldset><legend className="mb-2 font-label text-label-sm text-on-surface-variant">Canal preferido</legend><div className="grid grid-cols-2 gap-4">{[['email', 'mail', 'Correo'], ['whatsapp', 'chat', 'WhatsApp']].map(([value, icon, label]) => <label className={`relative flex min-h-14 cursor-pointer items-center justify-center gap-3 rounded-xl border p-4 transition-all ${form.channel === value ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant/20 text-on-surface hover:bg-surface-variant/20'}`} key={value}><input className="sr-only" type="radio" name="channel" value={value} checked={form.channel === value} onChange={update} /><Icon>{icon}</Icon>{label}</label>)}</div></fieldset>
               <label className="space-y-2"><span className="font-label text-label-sm text-on-surface-variant">Mensaje</span><textarea className="form-control min-h-40 resize-y p-4" name="message" value={form.message} onChange={update} required minLength="10" maxLength="3000" placeholder="Cuéntame sobre tu proyecto o consulta..." /></label>
               <div aria-hidden="true" className="absolute left-[-10000px]"><label>Empresa<input name="company" value={form.company} onChange={update} tabIndex="-1" autoComplete="off" /></label></div>
-              <TurnstileWidget onToken={handleToken} />
+              <TurnstileWidget onToken={handleToken} resetSignal={turnstileReset} />
               <label className="flex items-start gap-3 text-sm text-on-surface-variant"><input className="mt-0.5 h-5 w-5 rounded border-outline-variant/40 bg-surface-container-lowest text-primary-container focus:ring-primary/20" type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} /><span>Acepto que mis datos sean utilizados únicamente para responder esta solicitud de contacto.</span></label>
               <button className="flex w-full min-h-14 items-center justify-center gap-2 rounded-xl bg-primary text-on-primary font-bold text-lg shadow-lg shadow-primary/10 transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60" disabled={sending} type="submit">{sending ? <><span className="h-5 w-5 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" /> Enviando...</> : <><Icon>send</Icon> Enviar mensaje</>}</button>
             </form>
