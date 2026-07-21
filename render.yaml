@@ -22,6 +22,12 @@ services:
         sync: false
       - key: GOOGLE_DRIVE_FOLDER_ID
         sync: false
+      - key: GOOGLE_DRIVE_OAUTH_CLIENT_ID
+        sync: false
+      - key: GOOGLE_DRIVE_OAUTH_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_DRIVE_OAUTH_REFRESH_TOKEN
+        sync: false
       - key: APPS_SCRIPT_CONTACT_URL
         sync: false
       - key: CONTACT_HMAC_SECRET
