@@ -1,7 +1,8 @@
 import { google } from 'googleapis';
 import { env } from '../config/env.js';
 
-let authClient;
+let serviceAccountAuth;
+let driveAuth;
 let sheetsClient;
 let driveClient;
 
@@ -24,8 +25,8 @@ function parseCredentials() {
 }
 
 export function getGoogleAuth() {
-  if (!authClient) {
-    authClient = new google.auth.GoogleAuth({
+  if (!serviceAccountAuth) {
+    serviceAccountAuth = new google.auth.GoogleAuth({
       credentials: parseCredentials(),
       scopes: [
         'https://www.googleapis.com/auth/spreadsheets',
@@ -33,7 +34,37 @@ export function getGoogleAuth() {
       ]
     });
   }
-  return authClient;
+  return serviceAccountAuth;
+}
+
+function getDriveAuth() {
+  if (driveAuth) return driveAuth;
+
+  const oauthValues = [
+    env.GOOGLE_DRIVE_OAUTH_CLIENT_ID,
+    env.GOOGLE_DRIVE_OAUTH_CLIENT_SECRET,
+    env.GOOGLE_DRIVE_OAUTH_REFRESH_TOKEN
+  ];
+  const configuredCount = oauthValues.filter(Boolean).length;
+
+  if (configuredCount > 0 && configuredCount < oauthValues.length) {
+    throw new Error(
+      'La configuración OAuth de Google Drive está incompleta. Configure CLIENT_ID, CLIENT_SECRET y REFRESH_TOKEN.'
+    );
+  }
+
+  if (configuredCount === oauthValues.length) {
+    const oauthClient = new google.auth.OAuth2(
+      env.GOOGLE_DRIVE_OAUTH_CLIENT_ID,
+      env.GOOGLE_DRIVE_OAUTH_CLIENT_SECRET
+    );
+    oauthClient.setCredentials({ refresh_token: env.GOOGLE_DRIVE_OAUTH_REFRESH_TOKEN });
+    driveAuth = oauthClient;
+    return driveAuth;
+  }
+
+  driveAuth = getGoogleAuth();
+  return driveAuth;
 }
 
 export function getSheetsClient() {
@@ -45,7 +76,7 @@ export function getSheetsClient() {
 
 export function getDriveClient() {
   if (!driveClient) {
-    driveClient = google.drive({ version: 'v3', auth: getGoogleAuth() });
+    driveClient = google.drive({ version: 'v3', auth: getDriveAuth() });
   }
   return driveClient;
 }
