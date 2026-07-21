@@ -22,7 +22,14 @@ class ContactService {
     await sheetsRepository.append('contacts', contact);
 
     if (data.channel === 'email') {
-      await appsScriptService.sendContactEmail(contact);
+      try {
+        await appsScriptService.sendContactEmail(contact);
+      } catch (error) {
+        // La solicitud no debe quedar registrada como exitosa cuando el correo no pudo enviarse.
+        // Eliminar la fila permite al usuario reintentar sin crear contactos duplicados.
+        await sheetsRepository.deleteById('contacts', contact.id).catch(() => {});
+        throw error;
+      }
       return { contactId: contact.id, channel: 'email' };
     }
 

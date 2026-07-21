@@ -2,6 +2,15 @@ import 'dotenv/config';
 import { z } from 'zod';
 
 const optionalString = z.string().trim().optional().default('');
+const appsScriptUrl = z
+  .union([
+    z.literal(''),
+    z.string().trim().url().refine(
+      (value) => /\/exec(?:\?|$)/.test(value),
+      'Debe utilizar la URL pública de la implementación terminada en /exec, no la URL /dev.'
+    )
+  ])
+  .default('');
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -11,7 +20,7 @@ const envSchema = z.object({
   GOOGLE_SERVICE_ACCOUNT_JSON_BASE64: optionalString,
   GOOGLE_SPREADSHEET_ID: optionalString,
   GOOGLE_DRIVE_FOLDER_ID: optionalString,
-  APPS_SCRIPT_CONTACT_URL: optionalString,
+  APPS_SCRIPT_CONTACT_URL: appsScriptUrl,
   CONTACT_HMAC_SECRET: z.string().min(32),
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),

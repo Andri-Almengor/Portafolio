@@ -30,10 +30,32 @@ class AppsScriptService {
         signal: controller.signal,
         redirect: 'follow'
       });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || result.ok !== true) {
-        throw new Error(`Apps Script rechazó el correo: ${response.status}`);
+
+      const responseText = await response.text();
+      let result;
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          `Apps Script devolvió contenido no válido con estado ${response.status}. ` +
+          'Confirme que la URL configurada termine en /exec.'
+        );
       }
+
+      if (!response.ok || result.ok !== true) {
+        const providerCode = typeof result.code === 'string' ? result.code : 'UNKNOWN_APPS_SCRIPT_ERROR';
+        const detail = typeof result.error === 'string' ? result.error : 'Apps Script rechazó la solicitud.';
+        const diagnosticId = typeof result.diagnosticId === 'string'
+          ? ` Diagnóstico: ${result.diagnosticId}.`
+          : '';
+
+        throw new Error(
+          `Apps Script rechazó el correo con estado ${response.status}. ` +
+          `Código: ${providerCode}. ${detail}${diagnosticId}`
+        );
+      }
+
       return result;
     } finally {
       clearTimeout(timeout);

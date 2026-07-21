@@ -25,6 +25,8 @@ export function errorHandler(error, req, res, _next) {
 
   if (status >= 500) {
     logger.error({ err: error, requestId }, 'Error interno no controlado');
+  } else if (status === 401 && normalized.code === 'NO_SESSION') {
+    logger.debug({ requestId }, 'No existe una sesión activa');
   } else {
     logger.warn({ err: normalized, requestId }, 'Solicitud rechazada');
   }
