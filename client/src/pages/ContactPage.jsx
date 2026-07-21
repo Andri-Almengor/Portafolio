@@ -71,30 +71,6 @@ export function ContactPage() {
             </p>
           </div>
 
-          <div className="space-y-5">
-            {[
-              ['mail', 'Correo', 'andrickalmengor@gmail.com', 'mailto:andrickalmengor@gmail.com'],
-              ['call', 'Teléfono', '+506 7139-0044', 'tel:+50671390044'],
-              ['location_on', 'Ubicación', 'San José, Costa Rica', '']
-            ].map(([icon, label, value, href]) => (
-              <article className="tonal-layer-2 flex items-start gap-4 rounded-xl border border-outline-variant/10 p-4" key={label}>
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Icon>{icon}</Icon>
-                </div>
-                <div className="min-w-0">
-                  <p className="font-label text-xs uppercase tracking-widest text-primary">{label}</p>
-                  {href ? (
-                    <a className="mt-1 block break-all font-headline text-lg font-semibold hover:text-primary md:text-xl" href={href}>
-                      {value}
-                    </a>
-                  ) : (
-                    <p className="mt-1 font-headline text-lg font-semibold md:text-xl">{value}</p>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
-
           <div className="space-y-6">
             <div className="flex gap-4">
               <a
