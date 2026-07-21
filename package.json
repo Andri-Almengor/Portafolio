@@ -10,7 +10,8 @@
     "dev": "concurrently \"npm --workspace server run dev\" \"npm --workspace client run dev\"",
     "build": "npm --workspace client run build",
     "test": "npm --workspace server test",
-    "setup:sheets": "npm --workspace server run setup:sheets"
+    "setup:sheets": "npm --workspace server run setup:sheets",
+    "authorize:drive": "npm --workspace server run authorize:drive"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
