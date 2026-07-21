@@ -11,6 +11,7 @@
     "build": "npm --workspace client run build",
     "test": "npm --workspace server test",
     "setup:sheets": "npm --workspace server run setup:sheets",
+    "sync:sheets": "npm --workspace server run sync:sheets",
     "authorize:drive": "npm --workspace server run authorize:drive"
   },
   "devDependencies": {
