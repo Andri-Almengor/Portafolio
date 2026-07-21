@@ -90,7 +90,7 @@ export function PublicLayout() {
       <main><Outlet /></main>
 
       <footer className="border-t border-outline-variant/10 bg-surface-container-low">
-        <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-10 px-4 py-14 md:grid-cols-3 md:px-container-margin">
+        <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-10 px-4 py-14 md:grid-cols-2 md:px-container-margin">
           <div>
             <div className="font-headline text-headline-lg font-black text-primary">AA</div>
             <p className="mt-3 max-w-sm text-on-surface-variant">Desarrollo de software, automatización e integración de soluciones tecnológicas.</p>
@@ -102,14 +102,6 @@ export function PublicLayout() {
               <Link className="hover:text-primary" to="/projects">Proyectos</Link>
               <Link className="hover:text-primary" to="/contact">Contacto</Link>
               <Link className="hover:text-primary" to="/admin/login">Acceso administrativo</Link>
-            </div>
-          </div>
-          <div>
-            <h2 className="font-headline text-lg font-semibold">Contacto</h2>
-            <div className="mt-4 space-y-3 text-sm text-on-surface-variant">
-              <a className="flex items-center gap-2 hover:text-primary" href="mailto:andrickalmengor@gmail.com"><Icon className="text-lg">mail</Icon> andrickalmengor@gmail.com</a>
-              <a className="flex items-center gap-2 hover:text-primary" href="https://wa.me/50671390044" target="_blank" rel="noreferrer"><Icon className="text-lg">chat</Icon> WhatsApp</a>
-              <a className="flex items-center gap-2 hover:text-primary" href="https://www.linkedin.com/in/andrick-almengor-5aa69b2b2" target="_blank" rel="noreferrer"><Icon className="text-lg">link</Icon> LinkedIn</a>
             </div>
           </div>
         </div>
