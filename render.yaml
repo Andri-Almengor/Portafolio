@@ -3,7 +3,7 @@ services:
     name: andrick-portfolio
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm --workspace server start
     healthCheckPath: /api/health
     autoDeployTrigger: commit
