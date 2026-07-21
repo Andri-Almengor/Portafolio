@@ -20,7 +20,13 @@ export function serializeProject(row) {
     slug: row.slug,
     title: row.title,
     summary: row.summary,
+    problem: row.problem || '',
+    objective: row.objective || '',
+    solution: row.solution || '',
+    integration: row.integration || '',
     description: row.description,
+    challenges: row.challenges || '',
+    results: row.results || '',
     technologies: parseJson(row.technologiesJson, []),
     imageFileId: row.imageFileId || '',
     imageUrl: row.imageFileId
