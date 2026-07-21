@@ -22,15 +22,60 @@ En PowerShell:
 4. Configure las variables del administrador inicial.
 5. Ejecute `npm run setup:sheets` desde la raíz.
 
-El comando crea las pestañas `Sections`, `Projects`, `Admins`, `Sessions` y `Contacts`, agrega sus encabezados, carga el contenido inicial del CV y crea o actualiza el administrador.
+La cuenta de servicio se mantiene para Sheets. El comando crea las pestañas `Sections`, `Projects`, `Admins`, `Sessions` y `Contacts`, agrega sus encabezados, carga el contenido inicial del CV y crea o actualiza el administrador.
 
-## 3. Google Drive
+## 3. Google Drive con OAuth de usuario
 
-1. Cree una carpeta para las imágenes del portafolio.
-2. Compártala como editor con la cuenta de servicio.
-3. Coloque el ID en `GOOGLE_DRIVE_FOLDER_ID`.
+Las cuentas de servicio no tienen cuota de almacenamiento propia y no pueden crear archivos en una carpeta normal de **Mi unidad**. Para una cuenta personal de Google, las imágenes deben subirse mediante OAuth del propietario de la carpeta.
 
-Las imágenes permanecen privadas en Drive. La API solo entrega archivos asociados a proyectos publicados.
+### Crear credenciales OAuth
+
+1. Abra **Google Cloud > Google Auth Platform**.
+2. Configure la pantalla de consentimiento OAuth.
+3. Agregue su propio correo como usuario de prueba mientras realiza la configuración.
+4. En **Clientes**, cree un cliente OAuth 2.0 de tipo **Aplicación de escritorio**.
+5. Copie el Client ID y Client Secret.
+6. En `server/.env`, agregue:
+
+```env
+GOOGLE_DRIVE_OAUTH_CLIENT_ID=...
+GOOGLE_DRIVE_OAUTH_CLIENT_SECRET=...
+```
+
+### Generar el refresh token
+
+Desde la raíz del proyecto ejecute:
+
+```bash
+npm run authorize:drive
+```
+
+El navegador solicitará permiso para administrar Google Drive. Inicie sesión con la cuenta propietaria de la carpeta configurada en `GOOGLE_DRIVE_FOLDER_ID`.
+
+Al terminar, la terminal mostrará:
+
+```env
+GOOGLE_DRIVE_OAUTH_REFRESH_TOKEN=...
+```
+
+Guarde ese valor en `server/.env` y en las variables privadas de Render. No lo comparta ni lo suba a GitHub.
+
+### Carpeta de imágenes
+
+1. Cree una carpeta normal en Google Drive con la misma cuenta autorizada.
+2. Coloque su ID en `GOOGLE_DRIVE_FOLDER_ID`.
+3. La cuenta de servicio puede seguir teniendo acceso de editor para lectura de compatibilidad, pero las cargas se harán como el usuario OAuth y consumirán la cuota de ese usuario.
+
+Variables finales:
+
+```env
+GOOGLE_DRIVE_FOLDER_ID=...
+GOOGLE_DRIVE_OAUTH_CLIENT_ID=...
+GOOGLE_DRIVE_OAUTH_CLIENT_SECRET=...
+GOOGLE_DRIVE_OAUTH_REFRESH_TOKEN=...
+```
+
+Si utiliza Google Workspace y una unidad compartida, también puede agregar la cuenta de servicio como miembro y usar una carpeta dentro de esa unidad. El backend incluye `supportsAllDrives=true` para esa modalidad.
 
 ## 4. Apps Script
 
