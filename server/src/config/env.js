@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { z } from 'zod';
 
 const optionalString = z.string().trim().optional().default('');
+const requiredSecret = z.string().trim().min(32);
 const appsScriptUrl = z
   .union([
     z.literal(''),
@@ -24,14 +25,14 @@ const envSchema = z.object({
   GOOGLE_DRIVE_OAUTH_CLIENT_SECRET: optionalString,
   GOOGLE_DRIVE_OAUTH_REFRESH_TOKEN: optionalString,
   APPS_SCRIPT_CONTACT_URL: appsScriptUrl,
-  CONTACT_HMAC_SECRET: z.string().min(32),
-  JWT_ACCESS_SECRET: z.string().min(32),
-  JWT_REFRESH_SECRET: z.string().min(32),
+  CONTACT_HMAC_SECRET: requiredSecret,
+  JWT_ACCESS_SECRET: requiredSecret,
+  JWT_REFRESH_SECRET: requiredSecret,
   ACCESS_TOKEN_TTL: z.string().default('15m'),
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).max(30).default(7),
   REFRESH_COOKIE_NAME: z.string().default('portfolio_refresh'),
   COOKIE_DOMAIN: optionalString,
-  IP_HASH_SALT: z.string().min(32),
+  IP_HASH_SALT: requiredSecret,
   WHATSAPP_NUMBER: z.string().regex(/^\d{8,15}$/).default('50671390044'),
   TURNSTILE_SECRET_KEY: optionalString,
   MAX_IMAGE_SIZE_MB: z.coerce.number().min(1).max(10).default(5),
