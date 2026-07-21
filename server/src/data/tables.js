@@ -27,7 +27,13 @@ export const TABLES = Object.freeze({
       'featured',
       'published',
       'createdAt',
-      'updatedAt'
+      'updatedAt',
+      'problem',
+      'objective',
+      'solution',
+      'integration',
+      'challenges',
+      'results'
     ]
   },
   admins: {
