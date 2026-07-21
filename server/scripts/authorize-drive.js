@@ -6,6 +6,7 @@ import { google } from 'googleapis';
 const HOST = '127.0.0.1';
 const PORT = 53682;
 const REDIRECT_URI = `http://${HOST}:${PORT}/oauth2callback`;
+const START_URI = `http://${HOST}:${PORT}/authorize`;
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive';
 
 const clientId = process.env.GOOGLE_DRIVE_OAUTH_CLIENT_ID?.trim();
@@ -38,8 +39,6 @@ function openBrowser(url) {
   let command;
 
   if (process.platform === 'win32') {
-    // Evita cmd /c start: los caracteres & de la URL OAuth pueden ser
-    // interpretados como separadores y truncar parámetros como response_type.
     command = ['rundll32.exe', ['url.dll,FileProtocolHandler', url]];
   } else if (process.platform === 'darwin') {
     command = ['open', [url]];
@@ -51,12 +50,23 @@ function openBrowser(url) {
     const child = spawn(command[0], command[1], { detached: true, stdio: 'ignore' });
     child.unref();
   } catch {
-    // La URL también se imprime para apertura manual.
+    // La URL local también se imprime para apertura manual.
   }
 }
 
 const server = http.createServer(async (request, response) => {
-  const requestUrl = new URL(request.url || '/', REDIRECT_URI);
+  const requestUrl = new URL(request.url || '/', START_URI);
+
+  if (requestUrl.pathname === '/authorize') {
+    // El navegador recibe la URL OAuth mediante una redirección HTTP. Así ningún
+    // intérprete de comandos puede cortar los parámetros separados por &.
+    response.writeHead(302, {
+      Location: authorizationUrl,
+      'Cache-Control': 'no-store'
+    });
+    response.end();
+    return;
+  }
 
   if (requestUrl.pathname !== '/oauth2callback') {
     response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -105,13 +115,13 @@ const server = http.createServer(async (request, response) => {
 server.listen(PORT, HOST, () => {
   console.log('Abriendo autorización de Google Drive...');
   console.log(`Redirect URI local: ${REDIRECT_URI}`);
-  console.log('\nAbre esta URL completa si el navegador no se abre automáticamente:\n');
-  console.log(authorizationUrl);
-  openBrowser(authorizationUrl);
+  console.log('\nAbre esta dirección local si el navegador no se abre automáticamente:\n');
+  console.log(START_URI);
+  openBrowser(START_URI);
 });
 
 server.on('error', (error) => {
-  console.error(`No fue posible iniciar el servidor local en ${REDIRECT_URI}.`);
+  console.error(`No fue posible iniciar el servidor local en ${START_URI}.`);
   console.error(error);
   process.exit(1);
 });
