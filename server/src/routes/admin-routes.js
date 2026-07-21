@@ -46,7 +46,13 @@ function projectRow(data, current = {}) {
     featured: data.featured,
     published: data.published,
     createdAt: current.createdAt || now,
-    updatedAt: now
+    updatedAt: now,
+    problem: data.problem,
+    objective: data.objective,
+    solution: data.solution,
+    integration: data.integration,
+    challenges: data.challenges,
+    results: data.results
   };
 }
 
