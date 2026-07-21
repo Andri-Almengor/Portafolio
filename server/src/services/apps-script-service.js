@@ -30,10 +30,24 @@ class AppsScriptService {
         signal: controller.signal,
         redirect: 'follow'
       });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || result.ok !== true) {
-        throw new Error(`Apps Script rechazó el correo: ${response.status}`);
+
+      const responseText = await response.text();
+      let result;
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          `Apps Script devolvió contenido no válido con estado ${response.status}. ` +
+          'Confirme que la URL configurada termine en /exec.'
+        );
       }
+
+      if (!response.ok || result.ok !== true) {
+        const detail = typeof result.error === 'string' ? ` ${result.error}` : '';
+        throw new Error(`Apps Script rechazó el correo con estado ${response.status}.${detail}`);
+      }
+
       return result;
     } finally {
       clearTimeout(timeout);
