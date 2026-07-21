@@ -1,4 +1,3 @@
-import { env } from '../config/env.js';
 import { parseBoolean, parseJson } from './security.js';
 
 export function serializeSection(row) {
@@ -15,6 +14,8 @@ export function serializeSection(row) {
 }
 
 export function serializeProject(row) {
+  const imageVersion = encodeURIComponent(row.updatedAt || row.imageFileId || '1');
+
   return {
     id: row.id,
     slug: row.slug,
@@ -30,7 +31,7 @@ export function serializeProject(row) {
     technologies: parseJson(row.technologiesJson, []),
     imageFileId: row.imageFileId || '',
     imageUrl: row.imageFileId
-      ? `${env.PUBLIC_API_URL}/api/public/images/${encodeURIComponent(row.imageFileId)}`
+      ? `/api/public/images/${encodeURIComponent(row.imageFileId)}?v=${imageVersion}`
       : '',
     demoUrl: row.demoUrl || '',
     repoUrl: row.repoUrl || '',
