@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 const urlOrEmpty = z.union([z.string().url(), z.literal('')]).default('');
+const optionalProjectContent = z.string().trim().max(4000).optional().default('');
 
 export const loginSchema = z.object({
   email: z.string().trim().email().max(254).transform((value) => value.toLowerCase()),
@@ -19,7 +20,13 @@ export const projectSchema = z.object({
   title: z.string().trim().min(2).max(120),
   slug: z.string().trim().max(140).regex(/^[a-z0-9-]*$/).optional().default(''),
   summary: z.string().trim().min(10).max(350),
-  description: z.string().trim().min(10).max(8000),
+  problem: optionalProjectContent,
+  objective: optionalProjectContent,
+  solution: optionalProjectContent,
+  integration: optionalProjectContent,
+  description: z.string().trim().min(10).max(4000),
+  challenges: optionalProjectContent,
+  results: optionalProjectContent,
   technologies: z.array(z.string().trim().min(1).max(50)).max(30).default([]),
   demoUrl: urlOrEmpty,
   repoUrl: urlOrEmpty,
