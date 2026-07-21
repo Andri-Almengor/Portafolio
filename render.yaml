@@ -25,7 +25,7 @@ services:
       - key: APPS_SCRIPT_CONTACT_URL
         sync: false
       - key: CONTACT_HMAC_SECRET
-        generateValue: true
+        sync: false
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
