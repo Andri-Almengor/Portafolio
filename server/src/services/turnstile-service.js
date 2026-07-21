@@ -13,14 +13,48 @@ export async function verifyTurnstile(token, remoteIp) {
   });
   if (remoteIp) body.set('remoteip', remoteIp);
 
-  const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST',
-    body,
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-  });
-  const result = await response.json();
-  if (!result.success) {
-    throw new HttpError(400, 'La verificación anti-bots falló.', 'TURNSTILE_FAILED');
+  let result;
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    result = await response.json();
+  } catch {
+    throw new HttpError(502, 'No fue posible validar la verificación anti-bots.', 'TURNSTILE_UNAVAILABLE');
   }
+
+  if (!result.success) {
+    const errorCodes = Array.isArray(result['error-codes']) ? result['error-codes'] : [];
+    const isExpired = errorCodes.includes('timeout-or-duplicate');
+    const isSecretInvalid = errorCodes.includes('invalid-input-secret') || errorCodes.includes('missing-input-secret');
+
+    if (isExpired) {
+      throw new HttpError(
+        400,
+        'La verificación anti-bots venció o ya fue utilizada. Complete la verificación nuevamente.',
+        'TURNSTILE_EXPIRED',
+        { errorCodes }
+      );
+    }
+
+    if (isSecretInvalid) {
+      throw new HttpError(
+        503,
+        'La clave privada de Turnstile no es válida o no está configurada correctamente.',
+        'TURNSTILE_SECRET_INVALID',
+        { errorCodes }
+      );
+    }
+
+    throw new HttpError(
+      400,
+      'La verificación anti-bots falló.',
+      'TURNSTILE_FAILED',
+      { errorCodes }
+    );
+  }
+
   return true;
 }
