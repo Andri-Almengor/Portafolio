@@ -34,7 +34,8 @@ class DriveService {
         mimeType: 'image/webp',
         body: Readable.from(processed)
       },
-      fields: 'id,name,mimeType,size'
+      fields: 'id,name,mimeType,size',
+      supportsAllDrives: true
     });
 
     return result.data;
@@ -42,7 +43,7 @@ class DriveService {
 
   async getImageStream(fileId) {
     return this.drive.files.get(
-      { fileId, alt: 'media' },
+      { fileId, alt: 'media', supportsAllDrives: true },
       { responseType: 'stream' }
     );
   }
@@ -50,7 +51,7 @@ class DriveService {
   async deleteFile(fileId) {
     if (!fileId) return;
     try {
-      await this.drive.files.delete({ fileId });
+      await this.drive.files.delete({ fileId, supportsAllDrives: true });
     } catch (error) {
       if (error?.code !== 404) throw error;
     }
