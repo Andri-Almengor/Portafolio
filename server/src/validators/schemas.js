@@ -41,7 +41,6 @@ export const contactSchema = z.object({
   subject: z.string().trim().min(3).max(150),
   message: z.string().trim().min(10).max(3000),
   channel: z.enum(['email', 'whatsapp']).default('email'),
-  company: z.string().max(0).optional().default(''),
   turnstileToken: z.string().max(4096).optional().default('')
 });
 
