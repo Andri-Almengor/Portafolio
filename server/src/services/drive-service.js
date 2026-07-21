@@ -6,8 +6,20 @@ import { getDriveClient } from './google-client.js';
 import { HttpError } from '../utils/http-error.js';
 
 function normalizeDriveError(error) {
-  const providerCode = error?.response?.data?.error || error?.code;
-  const providerDescription = error?.response?.data?.error_description || '';
+  const responseError = error?.response?.data?.error;
+  const providerCode = typeof responseError === 'string'
+    ? responseError
+    : responseError?.status || responseError?.code || error?.code;
+  const providerDescription = typeof responseError === 'object'
+    ? responseError?.message || ''
+    : error?.response?.data?.error_description || error?.message || '';
+  const providerReasons = Array.isArray(responseError?.details)
+    ? responseError.details.map((detail) => detail?.reason).filter(Boolean)
+    : [];
+  const legacyReasons = Array.isArray(responseError?.errors)
+    ? responseError.errors.map((detail) => detail?.reason).filter(Boolean)
+    : [];
+  const reasons = [...providerReasons, ...legacyReasons];
 
   if (providerCode === 'unauthorized_client' || providerCode === 'invalid_client') {
     return new HttpError(
@@ -25,7 +37,19 @@ function normalizeDriveError(error) {
     );
   }
 
-  if (providerCode === 403 || providerCode === 'insufficientPermissions') {
+  const apiDisabled = reasons.includes('SERVICE_DISABLED')
+    || reasons.includes('accessNotConfigured')
+    || /drive api has not been used|drive api.*disabled|service_disabled/i.test(providerDescription);
+
+  if (apiDisabled) {
+    return new HttpError(
+      503,
+      'Google Drive API está deshabilitada en el proyecto de Google Cloud asociado al cliente OAuth. Active drive.googleapis.com y vuelva a intentar después de unos minutos.',
+      'DRIVE_API_DISABLED'
+    );
+  }
+
+  if (providerCode === 403 || providerCode === 'PERMISSION_DENIED' || providerCode === 'insufficientPermissions') {
     return new HttpError(
       502,
       'La cuenta autorizada no tiene permisos para escribir en la carpeta configurada de Google Drive.',
@@ -33,7 +57,7 @@ function normalizeDriveError(error) {
     );
   }
 
-  if (/storage quota/i.test(providerDescription) || /storage quota/i.test(error?.message || '')) {
+  if (/storage quota/i.test(providerDescription)) {
     return new HttpError(
       502,
       'La cuenta utilizada para Google Drive no dispone de cuota para crear archivos. Use OAuth de una cuenta personal o una unidad compartida.',
