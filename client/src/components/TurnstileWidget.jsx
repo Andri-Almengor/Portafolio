@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
-export function TurnstileWidget({ onToken }) {
+export function TurnstileWidget({ onToken, resetSignal = 0 }) {
   const container = useRef(null);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export function TurnstileWidget({ onToken }) {
       script?.removeEventListener('load', render);
       if (widgetId !== undefined && window.turnstile) window.turnstile.remove(widgetId);
     };
-  }, [onToken]);
+  }, [onToken, resetSignal]);
 
   if (!siteKey) return null;
   return <div ref={container} />;
