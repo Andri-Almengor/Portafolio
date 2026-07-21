@@ -44,8 +44,16 @@ class AppsScriptService {
       }
 
       if (!response.ok || result.ok !== true) {
-        const detail = typeof result.error === 'string' ? ` ${result.error}` : '';
-        throw new Error(`Apps Script rechazó el correo con estado ${response.status}.${detail}`);
+        const providerCode = typeof result.code === 'string' ? result.code : 'UNKNOWN_APPS_SCRIPT_ERROR';
+        const detail = typeof result.error === 'string' ? result.error : 'Apps Script rechazó la solicitud.';
+        const diagnosticId = typeof result.diagnosticId === 'string'
+          ? ` Diagnóstico: ${result.diagnosticId}.`
+          : '';
+
+        throw new Error(
+          `Apps Script rechazó el correo con estado ${response.status}. ` +
+          `Código: ${providerCode}. ${detail}${diagnosticId}`
+        );
       }
 
       return result;
