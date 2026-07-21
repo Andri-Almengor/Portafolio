@@ -48,10 +48,14 @@ if (!parsed.success) {
 
 const values = parsed.data;
 
+function normalizeOrigin(origin) {
+  return origin.trim().replace(/\/+$/, '');
+}
+
 export const env = Object.freeze({
   ...values,
   frontendOrigins: values.FRONTEND_ORIGINS.split(',')
-    .map((origin) => origin.trim())
+    .map(normalizeOrigin)
     .filter(Boolean),
   isProduction: values.NODE_ENV === 'production'
 });
